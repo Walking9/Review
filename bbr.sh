@@ -3,6 +3,7 @@
 #author: Walking9
 
 echo "****************欢迎使用bbr一键加速脚本*****************"
+echo "注意： 涉及到root权限，切勿在自己电脑上运行该脚本"
 echo "当前EUID：$EUID"
 if [ $EUID -eq 0 ]    #判断是否为root权限, 0--是
 # 用RUID, EUID,SUID来表示实际用户ID，有效用户ID，设置用户ID
@@ -38,16 +39,6 @@ get_opsy() {    # 获得系统版本信息
     [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
     [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
     [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
-}
-
-get_char() {
-    SAVEDSTTY=`stty -g`
-    stty -echo
-    stty cbreak
-    dd if=/dev/tty bs=1 count=1 2> /dev/null
-    stty -raw
-    stty echo
-    stty $SAVEDSTTY
 }
 
 getversion() {
@@ -100,7 +91,7 @@ check_kernel_version() {
 install_elrepo() {
 
     if centosversion 5; then
-        echo -e "${red}Error:${plain} not supported CentOS 5."
+        echo -e "Error: not supported CentOS 5."
         exit 1
     fi
 
@@ -113,7 +104,7 @@ install_elrepo() {
     fi
 
     if [ ! -f /etc/yum.repos.d/elrepo.repo ]; then
-        echo -e "${red}Error:${plain} Install elrepo failed, please check it."
+        echo -e "Error: Install elrepo failed, please check it."
         exit 1
     fi
 }
@@ -130,13 +121,13 @@ install_config() {
     if [[ x"${release}" == x"centos" ]]; then
         if centosversion 6; then
             if [ ! -f "/boot/grub/grub.conf" ]; then
-                echo -e "${red}Error:${plain} /boot/grub/grub.conf not found, please check it."
+                echo -e "Error: /boot/grub/grub.conf not found, please check it."
                 exit 1
             fi
             sed -i 's/^default=.*/default=0/g' /boot/grub/grub.conf
         elif centosversion 7; then
             if [ ! -f "/boot/grub2/grub.cfg" ]; then
-                echo -e "${red}Error:${plain} /boot/grub2/grub.cfg not found, please check it."
+                echo -e "Error: /boot/grub2/grub.cfg not found, please check it."
                 exit 1
             fi
             grub2-set-default 0
@@ -148,29 +139,27 @@ install_config() {
 
 reboot_os() {
     echo
-    echo -e "${green}Info:${plain} The system needs to reboot."
+    echo -e "Info:${plain} The system needs to reboot."
     read -p "Do you want to restart system? [y/n]" is_reboot
     if [[ ${is_reboot} == "y" || ${is_reboot} == "Y" ]]; then
         reboot
     else
-        echo -e "${green}Info:${plain} Reboot has been canceled..."
+        echo -e "Info: Reboot has been canceled..."
         exit 0
     fi
 }
 
 install_bbr() {
-    check_bbr_status
+    check_bbr_status         #检查是否已经安装bbr
     if [ $? -eq 0 ]; then
-        echo
-        echo -e "${green}Info:${plain} TCP BBR has been installed. nothing to do..."
+        echo -e "Info: TCP BBR has been installed. nothing to do..."
         exit 0
     fi
-    check_kernel_version
+    check_kernel_version   #检查内核版本
     if [ $? -eq 0 ]; then
-        echo
-        echo -e "${green}Info:${plain} Your kernel version is greater than 4.9, directly setting TCP BBR..."
+        echo -e "Info: Your kernel version is greater than 4.9, directly setting TCP BBR..."
         sysctl_config
-        echo -e "${green}Info:${plain} Setting TCP BBR completed..."
+        echo -e "Info: Setting TCP BBR completed..."
         exit 0
     fi
 
@@ -178,22 +167,22 @@ install_bbr() {
         install_elrepo
         yum --enablerepo=elrepo-kernel -y install kernel-ml kernel-ml-devel
         if [ $? -ne 0 ]; then
-            echo -e "${red}Error:${plain} Install latest kernel failed, please check it."
+            echo -e "Error: Install latest kernel failed, please check it."
             exit 1
         fi
     elif [[ x"${release}" == x"debian" || x"${release}" == x"ubuntu" ]]; then
         [[ ! -e "/usr/bin/wget" ]] && apt-get -y update && apt-get -y install wget
         get_latest_version
-        [ $? -ne 0 ] && echo -e "${red}Error:${plain} Get latest kernel version failed." && exit 1
+        [ $? -ne 0 ] && echo -e "Error: Get latest kernel version failed." && exit 1
         wget -c -t3 -T60 -O ${deb_kernel_name} ${deb_kernel_url}
         if [ $? -ne 0 ]; then
-            echo -e "${red}Error:${plain} Download ${deb_kernel_name} failed, please check it."
+            echo -e "Error: Download ${deb_kernel_name} failed, please check it."
             exit 1
         fi
         dpkg -i ${deb_kernel_name}
         rm -fv ${deb_kernel_name}
     else
-        echo -e "${red}Error:${plain} OS is not be supported, please change to CentOS/Debian/Ubuntu and try again."
+        echo -e "Error: OS is not be supported, please change to CentOS/Debian/Ubuntu and try again."
         exit 1
     fi
 
