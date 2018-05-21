@@ -11,7 +11,7 @@ def get_sys_time():
 
 def set_stamp():
 	#set_time = '2018-05-04 10:07:40'  # 设置抢购时间，最好提前,登录需要时间
-	set_time = '2018-05-04 15:59:20'
+	set_time = '2018-05-29 15:59:20'
 	#set_time = '2018-05-04 19:59:40'
     # 将其转换为时间数组
 	time_array = time.strptime(set_time, '%Y-%m-%d %H:%M:%S')
@@ -22,23 +22,28 @@ def set_stamp():
 
 #main
 try:
-	while True:
+	while False:
 		time.sleep(10)
 		print 'sleep...'
 		if get_sys_time() >= set_stamp():   #时间到，开抢
 			print 'strat...'
-			driver=webdriver.Chrome()
-			driver.get(r'https://www.vmall.com/product/10086915330134.html')
-			#print '@@@driver attributes:'
-			#print dir(driver)
-
-			#print '@@@WebElement attributes:'
-			#print dir(elem)
-			driver.find_element_by_class_name('product-button02').click()
-			driver.find_element_by_id('login_userName').send_keys('18860419700')
-			driver.find_element_by_id('login_password').send_keys('Ss4535122008%')
-			driver.find_element_by_class_name('button-login').click()
-			driver.find_element_by_xpath("//span[contains(text(),'极光色')]").click()
+			driver = webdriver.Chrome()
+			#driver.get(r'https://rush.oneplus.com/cn/oneplus6')
+			#一加官网验证码过不去，换用京东购买
+			driver.get(r'https://item.jd.com/7357933.html#none')
+			driver.find_element_by_xpath("//a[@clstag='shangpin|keycount|product|yanse-复联版']").click()
+			time.sleep(5)
+			driver.find_element_by_xpath("//a[@clstag='shangpin|keycount|product|yanse-8GB 256GB']").click()
+			time.sleep(5)   #会切换页面，所以等2s
+			driver.find_element_by_xpath("//a[@clstag='shangpin|keycount|product|btn1-立即预约-yuyue']").click()
+			time.sleep(5)
+			#driver.find_element_by_class_name('login-tab login-tab-r').click()
+			#driver.find_element_by_xpath("//a[@clstag='pageclick|keycount|login_pc_201804112|10']").click()
+			driver.find_element_by_xpath("//*[@id='content']/div[2]/div[1]/div/div[3]").click()
+			driver.find_element_by_id('loginname').send_keys('18860419700')
+			driver.find_element_by_id('nloginpwd').send_keys('taishanbeidou97')
+			#driver.find_element_by_class_name('btn-img btn-entry').click()
+			driver.find_element_by_xpath("//*[@id='loginsubmit']").click()
 			while True:
 				driver.find_element_by_class_name('product-button02').click()
 				if driver.title == u'【HUAWEI P20系列】4000万徕卡三摄* | AI摄影大师-新品首发':
@@ -54,5 +59,3 @@ try:
 except Exception, e:
     print e
 #time.sleep(5)
-	
-#elem.get_attribute('class')
