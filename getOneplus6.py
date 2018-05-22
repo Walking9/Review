@@ -59,3 +59,23 @@ try:
 except Exception, e:
     print e
 #time.sleep(5)
+driver = webdriver.Chrome()
+#driver.get(r'https://rush.oneplus.com/cn/oneplus6')
+#一加官网验证码过不去，换用京东购买
+driver.get(r'https://item.jd.com/7357933.html#none')
+driver.find_element_by_xpath("//a[@clstag='shangpin|keycount|product|yanse-复联版']").click()
+time.sleep(5)
+driver.find_element_by_xpath("//a[@clstag='shangpin|keycount|product|yanse-8GB 256GB']").click()
+time.sleep(5)   #会切换页面，所以等2s
+driver.find_element_by_xpath("//a[@clstag='shangpin|keycount|product|btn1-立即预约-yuyue']").click()
+time.sleep(5)
+#driver.find_element_by_class_name('login-tab login-tab-r').click()
+#driver.find_element_by_xpath("//a[@clstag='pageclick|keycount|login_pc_201804112|10']").click()
+driver.find_element_by_xpath("//*[@id='content']/div[2]/div[1]/div/div[3]").click()
+driver.find_element_by_id('loginname').send_keys('18860419700')
+driver.find_element_by_id('nloginpwd').send_keys('taishanbeidou97')
+#driver.find_element_by_class_name('btn-img btn-entry').click()
+driver.find_element_by_xpath("//*[@id='loginsubmit']").click()
+//*[@id="btn-reservation"]
+btn-reservation
+shangpin|keycount|product|btn1-立即抢购-yuyue
